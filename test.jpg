@@ -1,0 +1,63 @@
+;unparse->js
+(test-parse "unparse->js - 1"
+            '(define x (f x (* 5 x) (= 3 2) y))
+            "const x = f(x,*(5,x),==(3,2),y);"
+            unparse->js
+            parse)
+
+(test-parse "unparse->js - 2"
+            '(lambda (x y z) (display "hi!") (if (eq? x y) z (or #f (eq? x z))))
+            "(x,y,z) => { display(\"hi!\"); eq?(x,y) ? z : or(false,eq?(x,z)) }"
+            unparse->js
+            parse)
+
+(test-parse "unparse->js - 3"
+            '(lambda (x) (let ((y (+ (f x) 5)) (z y)) (+ z y) #t))
+            "(x) => { let y = +(f(x),5), z = y; +(z,y); true; }"
+            unparse->js
+            parse)
+
+(test-parse "unparse->js - 4"
+            '(lambda (x y z) x y z)
+            "(x,y,z) => { x; y; z }"
+            unparse->js
+            parse)
+
+(test-parse "unparse->js - 5"
+            '(f (x (g (y (z x)))))
+            "f(x(g(y(z(x)))))"
+            unparse->js
+            parse)
+
+(test-parse "unparse->js - 6"
+            '(= 4 5)
+            "==(4,5)"
+            unparse->js
+            parse)
+
+(test-parse "unparse->js - 7"
+            '(if #t #f "sss")
+            "true ? false : \"sss\""
+            unparse->js
+            parse)
+
+;unparse->js-infix
+(test-parse "unparse->js-infix - 1"
+            '(+ 5 3 (* 2 (- x y w) 7) z 4)
+            "(5 + 3 + (2 * (x - y - w) * 7) + z + 4)"
+            unparse->js-infix
+            parse)
+
+(test-parse "unparse->js-infix - 2"
+            '(lambda (x y) (if (= x y) (+ y y) (* (- x 0) y (/ x 1 y))))
+            "(x,y) => { (x == y) ? (y + y) : ((x - 0) * y * (x / 1 / y)) }"
+            unparse->js-infix
+            parse)
+
+(test-parse "unparse->js-infix - 3"
+            '(lambda (x y) (if (= x y) (display q w e r t y) 0))
+            "(x,y) => { (x == y) ? display(q,w,e,r,t,y) : 0 }"
+            unparse->js-infix
+            parse)
+
+(if passed (display "ALL CLEAR") (void))
